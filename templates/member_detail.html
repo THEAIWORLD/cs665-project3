@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}{{ member['first_name'] }} {{ member['last_name'] }} - LibraryMS{% endblock %}
+{% block content %}
+<div class="row mb-3">
+  <div class="col">
+    <h2><i class="bi bi-person-circle me-2"></i>{{ member['first_name'] }} {{ member['last_name'] }}</h2>
+    <p class="text-muted">Member since {{ member['join_date'] }}</p>
+  </div>
+  <div class="col-auto">
+    <a href="{{ url_for('members') }}" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>Back to Members
+    </a>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header fw-bold bg-white">
+        <i class="bi bi-info-circle me-2"></i>Member Information
+      </div>
+      <div class="card-body">
+        <table class="table table-sm mb-0">
+          <tr><th>Full Name</th><td>{{ member['first_name'] }} {{ member['last_name'] }}</td></tr>
+          <tr><th>Email</th><td>{{ member['email'] }}</td></tr>
+          <tr><th>Phone</th><td>{{ member['phone'] or '-' }}</td></tr>
+          <tr><th>Join Date</th><td>{{ member['join_date'] }}</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header fw-bold bg-white">
+        <i class="bi bi-bar-chart me-2"></i>Loan Summary
+      </div>
+      <div class="card-body">
+        <div class="row text-center">
+          <div class="col">
+            <h3 class="text-primary">{{ loans|length }}</h3>
+            <small class="text-muted">Total Loans</small>
+          </div>
+          <div class="col">
+            <h3 class="text-warning">
+              {{ loans|selectattr('status','equalto','active')|list|length }}
+            </h3>
+            <small class="text-muted">Active</small>
+          </div>
+          <div class="col">
+            <h3 class="text-success">
+              {{ loans|selectattr('status','equalto','returned')|list|length }}
+            </h3>
+            <small class="text-muted">Returned</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header fw-bold bg-white">
+    <i class="bi bi-clock-history me-2"></i>Loan History
+  </div>
+  <div class="card-body p-0">
+    {% if loans %}
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>#</th><th>Book</th><th>Loan Date</th>
+          <th>Due Date</th><th>Return Date</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for l in loans %}
+        <tr>
+          <td>{{ l['loan_id'] }}</td>
+          <td>{{ l['title'] }}</td>
+          <td>{{ l['loan_date'] }}</td>
+          <td>{{ l['due_date'] }}</td>
+          <td>{{ l['return_date'] or '-' }}</td>
+          <td>
+            {% if l['status'] == 'active' %}
+              <span class="badge bg-warning text-dark">Active</span>
+            {% elif l['status'] == 'returned' %}
+              <span class="badge bg-success">Returned</span>
+            {% else %}
+              <span class="badge bg-danger">Overdue</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted text-center p-4">No loan history found.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
